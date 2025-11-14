@@ -38,7 +38,7 @@ payment_rail:
 transaction_id_1:
   type: string
   required: true
-  format: "TXN_{:06d}"  # Format with 6-digit zero-padded number
+  format: "TXN_{:12d}"  # Format with 6-digit zero-padded number
   description: "Primary transaction identifier"
 
 transaction_id_2:
@@ -70,13 +70,13 @@ sending_fedline_tier:
   type: category
   required: false
   valid_values:
-    - TIER_1
-    - TIER_2
-    - TIER_3
+    - FLA
+    - FLC
+    - FLD
   distribution:
-    TIER_1: 0.40
-    TIER_2: 0.35
-    TIER_3: 0.25
+    FLA: 0.0394
+    FLC: 0.0451
+    FLD: 0.9154
   description: "Federal Reserve tier classification for sending institution"
 
 odfi_name:
@@ -170,7 +170,7 @@ originating_account_type:
 originating_account_identifier:
   type: string
   required: false
-  format: "ACC_{:06d}"
+  format: "ACC_{:12d}"
   description: "Unique identifier for originating account"
 
 originating_account_description:
@@ -184,13 +184,13 @@ receiving_fedline_tier:
   type: category
   required: false
   valid_values:
-    - TIER_1
-    - TIER_2
-    - TIER_3
+    - FLA
+    - FLC
+    - FLD
   distribution:
-    TIER_1: 0.40
-    TIER_2: 0.35
-    TIER_3: 0.25
+    FLA: 0.08
+    FLC: 0.26
+    FLD: 0.66
   description: "Federal Reserve tier for receiving institution"
 
 rdfi_name:
@@ -494,16 +494,16 @@ dollar_direction:
   type: category
   required: false
   valid_values:
-    - DEBIT
-    - CREDIT
-  default: DEBIT
+    - RDFI
+    - ODFI
+  default: RDFI
   description: "Direction of dollar flow from sender perspective"
 
 security_direction:
   type: category
   required: false
   valid_values:
-    - DELIVERY
+    - DELIVERY 
     - RECEIVE
     - ""
   default: ""
