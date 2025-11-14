@@ -1,0 +1,612 @@
+# ============================================================================
+# Schema Field Rules Configuration
+# ============================================================================
+#
+# Defines exact rules for each field in the ctj_all table schema.
+# Used to validate and generate data according to specific business rules.
+#
+# Field Rule Types:
+#   - category: Fixed list of valid values
+#   - integer: Numeric integer with optional min/max
+#   - double: Numeric double/float with optional min/max
+#   - string: Text field with optional pattern/format
+#   - timestamp: Date/time field with format specification
+#   - derived: Calculated from other fields
+#   - constant: Fixed value
+#
+# ============================================================================
+
+# Payment Rail (primary transaction type)
+payment_rail:
+  type: category
+  required: true
+  valid_values:
+    - ACH
+    - CHECK
+    - FUNDS
+    - SECURITIES
+    - CASH
+  distribution:  # Optional: probability distribution
+    ACH: 0.60
+    CHECK: 0.15
+    FUNDS: 0.15
+    SECURITIES: 0.05
+    CASH: 0.05
+  description: "Primary payment rail used for the transaction"
+
+# Transaction Identifiers
+transaction_id_1:
+  type: string
+  required: true
+  format: "TXN_{:06d}"  # Format with 6-digit zero-padded number
+  description: "Primary transaction identifier"
+
+transaction_id_2:
+  type: string
+  required: true
+  format: "{}_REF"  # Derived from transaction_id_1
+  derived_from: transaction_id_1
+  description: "Reference transaction identifier"
+
+# Financial Institution Identifiers (9-digit routing numbers)
+odfi:
+  type: integer
+  required: true
+  min: 100000000
+  max: 999999999
+  digits: 9
+  description: "Originating Depository Financial Institution routing number"
+
+rdfi:
+  type: integer
+  required: true
+  min: 100000000
+  max: 999999999
+  digits: 9
+  description: "Receiving Depository Financial Institution routing number"
+
+# Sending FI Details
+sending_fedline_tier:
+  type: category
+  required: false
+  valid_values:
+    - TIER_1
+    - TIER_2
+    - TIER_3
+  distribution:
+    TIER_1: 0.40
+    TIER_2: 0.35
+    TIER_3: 0.25
+  description: "Federal Reserve tier classification for sending institution"
+
+odfi_name:
+  type: string
+  required: true
+  max_length: 100
+  description: "Name of originating financial institution"
+
+sending_net_source:
+  type: category
+  required: false
+  valid_values:
+    - FedACH
+    - FedNow
+    - FedWire
+    - Clearing_House
+    - CHIPS
+  mapping:  # Map from payment_rail
+    ACH: FedACH
+    FUNDS: FedNow
+    SECURITIES: FedWire
+    CHECK: Clearing_House
+    CASH: FedACH
+  description: "Network source for sending transaction"
+
+# Instructing FI Details
+instructing_fi_id_code:
+  type: category
+  required: false
+  valid_values:
+    - SWIFT
+    - ROUTING
+    - ABA
+    - FED
+  default: SWIFT
+  description: "Type of identifier used for instructing FI"
+
+instructing_fi_id:
+  type: string
+  required: false
+  format: "{:8s}"  # 8-character SWIFT code or routing number
+  description: "Identifier for instructing financial institution"
+
+instructing_fi_name:
+  type: string
+  required: false
+  max_length: 100
+  description: "Name of instructing financial institution"
+
+# Originating FI Details (typically same as ODFI)
+ofi_id_code:
+  type: category
+  required: false
+  valid_values:
+    - ROUTING
+    - SWIFT
+    - ABA
+  default: ROUTING
+  description: "Type of identifier for originating FI"
+
+ofi_id:
+  type: string
+  required: false
+  derived_from: odfi
+  description: "Originating FI identifier (typically routing number)"
+
+ofi_name:
+  type: string
+  required: false
+  derived_from: odfi_name
+  description: "Originating FI name (typically same as ODFI)"
+
+# Originating Account Details
+originating_account_type:
+  type: category
+  required: false
+  valid_values:
+    - DDA      # Demand Deposit Account
+    - SAV      # Savings
+    - TRU      # Trust
+    - GLN      # General Ledger
+    - MMA      # Money Market
+  distribution:
+    DDA: 0.60
+    SAV: 0.20
+    TRU: 0.05
+    GLN: 0.10
+    MMA: 0.05
+  description: "Type of originating account"
+
+originating_account_identifier:
+  type: string
+  required: false
+  format: "ACC_{:06d}"
+  description: "Unique identifier for originating account"
+
+originating_account_description:
+  type: string
+  required: false
+  max_length: 200
+  description: "Human-readable description of originating account"
+
+# Receiving FI Details
+receiving_fedline_tier:
+  type: category
+  required: false
+  valid_values:
+    - TIER_1
+    - TIER_2
+    - TIER_3
+  distribution:
+    TIER_1: 0.40
+    TIER_2: 0.35
+    TIER_3: 0.25
+  description: "Federal Reserve tier for receiving institution"
+
+rdfi_name:
+  type: string
+  required: true
+  max_length: 100
+  description: "Name of receiving financial institution"
+
+receiving_net_source:
+  type: category
+  required: false
+  valid_values:
+    - FedACH
+    - FedNow
+    - FedWire
+    - Clearing_House
+    - CHIPS
+  mapping:  # Map from payment_rail
+    ACH: FedACH
+    FUNDS: FedNow
+    SECURITIES: FedWire
+    CHECK: Clearing_House
+    CASH: FedACH
+  description: "Network source for receiving transaction"
+
+# Intermediary FI Details (for cross-institution transfers)
+intermediary_fi_id_code:
+  type: category
+  required: false
+  valid_values:
+    - ROUTING
+    - SWIFT
+    - FED
+  description: "Type of identifier for intermediary FI"
+
+intermediary_fi_id:
+  type: string
+  required: false
+  pattern: "^0\\d{8}$"  # Fed routing numbers start with 0
+  description: "Federal Reserve intermediary routing number"
+
+intermediary_fi_name:
+  type: string
+  required: false
+  default: "Federal Reserve Bank"
+  description: "Name of intermediary institution"
+
+# Receiving FI Details
+rfi_id_code:
+  type: category
+  required: false
+  valid_values:
+    - ROUTING
+    - SWIFT
+    - ABA
+  default: ROUTING
+  description: "Type of identifier for receiving FI"
+
+rfi_id:
+  type: string
+  required: false
+  derived_from: rdfi
+  description: "Receiving FI identifier (typically routing number)"
+
+rfi_name:
+  type: string
+  required: false
+  derived_from: rdfi_name
+  description: "Receiving FI name (typically same as RDFI)"
+
+# Receiving Account Details
+receiving_account_type:
+  type: category
+  required: false
+  valid_values:
+    - DDA
+    - SAV
+    - TRU
+    - GLN
+    - MMA
+  distribution:
+    DDA: 0.60
+    SAV: 0.20
+    TRU: 0.05
+    GLN: 0.10
+    MMA: 0.05
+  description: "Type of receiving account"
+
+receiving_account_identifier:
+  type: string
+  required: false
+  format: "ACC_{:06d}"
+  description: "Unique identifier for receiving account"
+
+receiving_account_description:
+  type: string
+  required: false
+  max_length: 200
+  description: "Human-readable description of receiving account"
+
+# Payment Type Details
+pay_type:
+  type: category
+  required: true
+  valid_values:
+    - ACH
+    - WIRE
+    - RTP
+    - CHECK
+    - CASH
+    - SECURITIES
+  mapping:  # Map from payment_rail
+    ACH: ACH
+    FUNDS: RTP
+    SECURITIES: SECURITIES
+    CHECK: CHECK
+    CASH: CASH
+  description: "Specific payment type within payment rail"
+
+pay_type_subtype_1:
+  type: category
+  required: false
+  valid_values:
+    - UTILITY
+    - SALARY
+    - INVOICE
+    - PERSONAL
+    - STANDARD
+    - TRADE
+    - SETTLEMENT
+  description: "Primary payment subtype classification"
+
+pay_type_subtype_2:
+  type: category
+  required: false
+  valid_values:
+    - HIGH_VALUE
+    - COMMERCIAL
+    - CONSUMER
+    - GOVERNMENT
+    - INTERNATIONAL
+  description: "Secondary payment subtype classification"
+
+return_/_error_reason:
+  type: string
+  required: false
+  default: ""
+  max_length: 500
+  description: "Reason for return or error (empty for successful transactions)"
+
+pay_code:
+  type: category
+  required: false
+  valid_values:
+    - CCD   # Corporate Credit or Debit
+    - CTR   # Customer Transfer
+    - P2P   # Person to Person
+    - PPD   # Prearranged Payment & Deposit
+    - WEB   # Internet-Initiated
+    - TEL   # Telephone-Initiated
+    - CHK   # Check
+  mapping:  # Map from pay_type
+    ACH: CCD
+    WIRE: CTR
+    RTP: P2P
+    CHECK: CHK
+    CASH: PPD
+  description: "Payment code (SEC code for ACH, type code for others)"
+
+pay_code_type:
+  type: category
+  required: false
+  valid_values:
+    - SEC_CODE
+    - TYPE_CODE
+    - REQUEST_TYPE
+    - ENTRY_CLASS
+  default: SEC_CODE
+  description: "Type classification for payment code"
+
+# Transaction Metadata
+originator_type:
+  type: category
+  required: false
+  valid_values:
+    - INDIVIDUAL
+    - CORPORATE
+    - FIDUCIARY
+    - GOVERNMENT
+    - NON_PROFIT
+  distribution:
+    INDIVIDUAL: 0.45
+    CORPORATE: 0.40
+    FIDUCIARY: 0.05
+    GOVERNMENT: 0.05
+    NON_PROFIT: 0.05
+  description: "Type of transaction originator"
+
+transaction_purpose:
+  type: category
+  required: false
+  valid_values:
+    - BILL_PAYMENT
+    - PAYROLL
+    - PERSON_TO_PERSON
+    - TRADE_SETTLEMENT
+    - SUBSCRIPTION
+    - GENERAL_PAYMENT
+    - LOAN_PAYMENT
+    - TAX_PAYMENT
+    - INVESTMENT
+  description: "Primary purpose of the transaction"
+
+value_type:
+  type: category
+  required: false
+  valid_values:
+    - MONETARY
+    - SECURITIES
+    - CASH_EQUIVALENT
+  default: MONETARY
+  description: "Type of value being transferred"
+
+reference_id:
+  type: string
+  required: false
+  format: "REF_{}"
+  derived_from: transaction_id_1
+  description: "External reference identifier"
+
+previous_message_id:
+  type: string
+  required: false
+  default: ""
+  description: "ID of previous related message (empty for original transactions)"
+
+payment_speed_category:
+  type: category
+  required: false
+  valid_values:
+    - STANDARD
+    - EXPEDITED
+    - INSTANT
+    - DELAYED
+  mapping:  # Map from payment_rail
+    ACH: STANDARD
+    FUNDS: INSTANT
+    SECURITIES: EXPEDITED
+    CHECK: DELAYED
+    CASH: INSTANT
+  description: "Speed category of payment processing"
+
+# Timestamp Fields
+transaction_create_date:
+  type: timestamp
+  required: true
+  format: "%Y-%m-%d %H:%M:%S"
+  description: "Date and time transaction was created"
+
+transaction_processed_date:
+  type: timestamp
+  required: true
+  format: "%Y-%m-%d %H:%M:%S"
+  derived_rule: "create_date + processing_delay"
+  description: "Date and time transaction was processed"
+
+odfi_transaction_settlement_date:
+  type: timestamp
+  required: true
+  format: "%Y-%m-%d %H:%M:%S"
+  derived_rule: "based_on_payment_rail"
+  description: "Settlement date at originating institution"
+
+rdfi_transaction_settlement_date:
+  type: timestamp
+  required: true
+  format: "%Y-%m-%d %H:%M:%S"
+  derived_rule: "based_on_payment_rail_plus_1"
+  description: "Settlement date at receiving institution"
+
+# Amount Fields
+dollar_value:
+  type: double
+  required: true
+  min: 0.01
+  max: 999999999.99
+  precision: 2
+  description: "Dollar amount of the transaction"
+
+security_par_value:
+  type: double
+  required: false
+  min: 0.0
+  max: 999999999.99
+  precision: 2
+  default: 0.0
+  description: "Par value of securities (if applicable)"
+
+# Direction Fields
+dollar_direction:
+  type: category
+  required: false
+  valid_values:
+    - DEBIT
+    - CREDIT
+  default: DEBIT
+  description: "Direction of dollar flow from sender perspective"
+
+security_direction:
+  type: category
+  required: false
+  valid_values:
+    - DELIVERY
+    - RECEIVE
+    - ""
+  default: ""
+  description: "Direction of securities transfer"
+
+# Additional Fields
+addenda_count:
+  type: integer
+  required: false
+  min: 0
+  max: 999
+  default: 0
+  description: "Number of addenda records attached"
+
+recurring_payment:
+  type: category
+  required: false
+  valid_values:
+    - "YES"
+    - "NO"
+  distribution:
+    "YES": 0.30
+    "NO": 0.70
+  description: "Whether transaction is part of recurring payment"
+
+# ============================================================================
+# Advanced Field Generation Examples
+# ============================================================================
+#
+# Examples of advanced field generation capabilities:
+#
+# 1. Regex-based string generation:
+#    custom_id:
+#      type: string
+#      pattern: "^[A-Z]{3}-\d{6}$"
+#      generate_from_pattern: true  # Enable regex-based generation
+#      description: "Generate strings like ABC-123456"
+#
+# 2. Distribution-based integer generation:
+#    transaction_count:
+#      type: integer
+#      min: 0
+#      max: 100
+#      distribution_type: poisson
+#      lambda: 15
+#      description: "Poisson-distributed transaction count"
+#
+# 3. Distribution-based double generation:
+#    account_balance:
+#      type: double
+#      min: 0.0
+#      max: 1000000.0
+#      precision: 2
+#      distribution_type: lognormal
+#      mean: 8.5  # ln(5000)
+#      sigma: 1.5
+#      description: "Log-normal distributed account balance"
+#
+# 4. Beta distribution for percentages:
+#    completion_rate:
+#      type: double
+#      min: 0.0
+#      max: 1.0
+#      precision: 4
+#      distribution_type: beta
+#      alpha: 8.0
+#      beta: 2.0
+#      description: "Beta-distributed rate (skewed toward higher values)"
+#
+# ============================================================================
+
+# ============================================================================
+# Custom Generation Rules
+# ============================================================================
+
+generation_rules:
+  # Cross-field dependencies
+  dependencies:
+    - if_field: payment_rail
+      equals: SECURITIES
+      then_set:
+        security_par_value: "random_from_distribution"
+        security_direction: "DELIVERY"
+        value_type: SECURITIES
+
+    - if_field: payment_rail
+      equals: CHECK
+      then_set:
+        payment_speed_category: DELAYED
+        addenda_count: 0
+
+    - if_field: originating_account_type
+      equals: TRU
+      then_set:
+        originator_type: FIDUCIARY
+
+  # Same-institution rules
+  same_institution_rules:
+    intermediary_fi_id_code: ""
+    intermediary_fi_id: ""
+    intermediary_fi_name: ""
+
+  # Cross-institution rules
+  cross_institution_rules:
+    intermediary_fi_id_code: ROUTING
+    intermediary_fi_name: "Federal Reserve Bank"

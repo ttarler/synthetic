@@ -34,6 +34,120 @@ network_structure:
         percentage: 0.01  # 1%
         balance_range: [5000, 25000]
 
+# NEW: Realistic Account Behavior Configuration
+account_behavior:
+  enable_profiles: true  # Use realistic account behavior profiles
+
+  # Account type distribution (must sum to 1.0)
+  account_type_distribution:
+    checking: 0.50
+    savings: 0.25
+    business: 0.20
+    trust: 0.05
+
+  # Frequency tier settings control overall transaction volume
+  frequency_tiers:
+    dormant:
+      transactions_per_month_range: [0.2, 0.7]
+      amount_mean_multiplier: 1.5  # Larger amounts, less frequent
+    low:
+      transactions_per_month_range: [1.0, 3.5]
+      amount_mean_multiplier: 1.2
+    medium:
+      transactions_per_month_range: [3.7, 8.5]
+      amount_mean_multiplier: 1.0
+    high:
+      transactions_per_month_range: [8.7, 16.5]
+      amount_mean_multiplier: 0.6  # Smaller amounts, more frequent
+    very_high:
+      transactions_per_month_range: [17.0, 35.0]
+      amount_mean_multiplier: 0.4
+
+  # Amount distribution uses log-normal instead of uniform
+  realistic_amounts:
+    use_lognormal: true
+    base_amounts:  # Base mean amounts by account type
+      checking: 500
+      savings: 2500
+      business: 3500
+      trust: 5000
+
+# NEW: Relationship Network Configuration
+relationship_network:
+  enable_network: true  # Build realistic account relationships
+
+  # Relationship creation settings
+  min_relationships_per_account: 0
+  max_relationships_per_account: 20
+
+  # Relationship type distributions
+  relationship_type_weights:
+    recurring_payment: 0.25   # Regular bills, subscriptions
+    bill_payment: 0.30        # Utilities, rent
+    peer_transfer: 0.20       # Friend/family transfers
+    business_payment: 0.15    # B2B transactions
+    salary_deposit: 0.05      # Income
+    one_time: 0.05           # Ad-hoc
+
+  # Strength settings (affects transaction frequency)
+  relationship_strength:
+    recurring_payment: 0.9    # Very frequent
+    bill_payment: 0.8         # Frequent
+    salary_deposit: 0.95      # Very frequent
+    business_payment: 0.7     # Moderate
+    peer_transfer: 0.5        # Less frequent
+    one_time: 0.1            # Rare
+
+  # Intra-institution preference
+  same_institution_preference: 0.65  # 65% of relationships within same institution
+
+# NEW: Institutional Relationships Configuration
+institutional_relationships:
+  # Use real-world ODFI-RDFI transaction volume matrix
+  use_matrix: true
+
+  # Path to CSV matrix file (generated from queries/generate_odfi_rdfi_matrix.sql)
+  matrix_path: "config/odfi_rdfi_matrix.csv"
+
+  # If matrix not available, create sample for testing
+  create_sample_if_missing: true
+
+  # Matrix-based selection probability (vs random)
+  matrix_based_probability: 0.90  # 90% use matrix patterns, 10% random
+
+# NEW: Temporal Patterns Configuration
+temporal_patterns:
+  enable_patterns: true  # Use realistic timing patterns
+
+  # Recurring transaction scheduling
+  recurring_transactions:
+    enable: true
+    monthly_probability: 0.3   # 30% of relationships generate monthly recurring
+    weekly_probability: 0.15   # 15% generate weekly recurring
+    biweekly_probability: 0.1  # 10% generate bi-weekly
+
+  # Transaction sequences (chains)
+  transaction_chains:
+    enable: true
+    chain_probability: 0.15    # 15% of transactions trigger follow-up
+    chain_length_range: [2, 4] # 2-4 transactions in a chain
+    chain_time_window_hours: [1, 48]  # Follow-up within 1-48 hours
+
+  # Batch payments
+  batch_payments:
+    enable: true
+    batch_probability: 0.08    # 8% of high-frequency accounts do batch payments
+    batch_size_range: [3, 10]  # 3-10 payments in a batch
+    batch_time_window_minutes: [5, 60]  # All within 5-60 minutes
+
+  # Seasonal patterns
+  seasonal_patterns:
+    enable: false  # Disabled by default (requires longer time periods)
+    holiday_multipliers:
+      thanksgiving_week: 1.3
+      christmas_week: 1.5
+      new_year_week: 1.2
+
 transaction_generation:
   total_transactions: 100000
   time_period_days: 90
@@ -41,15 +155,30 @@ transaction_generation:
   
   normal_transactions:
     percentage: 0.97  # 97%
-    amount_range: [10, 5000]
-    
-    # Business hour weighting (24 hours)
+    amount_range: [10, 5000]  # Deprecated - now using realistic distributions
+
+    # Business hour weighting (24 hours) - Deprecated, now using account-specific patterns
     hour_weights: [2,1,1,1,1,2,4,6,8,10,10,10,10,10,8,8,8,6,6,4,4,3,3,2]
-    
+
     payment_type_distribution:
       ACH: 0.60
       WIRE: 0.15
       RTP: 0.25
+
+    # NEW: Realistic transaction generation settings
+    use_realistic_generation: true
+    relationship_based_probability: 0.80  # 80% of transactions use existing relationships
+
+    # Day of week patterns (0=Monday, 6=Sunday)
+    day_of_week_weights: [1.0, 1.0, 1.0, 1.0, 1.0, 0.6, 0.4]  # Weekdays higher
+
+    # Day of month patterns - bill payment clustering
+    bill_payment_days: [1, 2, 3, 15, 28, 29, 30]  # Common bill payment dates
+    payroll_days: [15, 30]  # Common payroll dates
+
+    # Transaction clustering - transactions from same account tend to cluster
+    intra_day_clustering: true
+    cluster_window_hours: 4  # Transactions cluster within 4-hour windows
 
 fraud_patterns:
   overall_fraud_rate: 0.03  # 3%

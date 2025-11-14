@@ -1,14 +1,26 @@
+# Core dependencies
 boto3>=1.26.0
 pandas>=1.5.0
 numpy>=1.21.0
-faker>=15.0.0
 pyyaml>=6.0
+
+# Data generation
+faker>=15.0.0
+rstr>=3.2.0  # Regex-based string generation for field rules
+
+# Graph and network
 networkx>=2.8
 gremlinpython>=3.6.2
+
+# Visualization
 matplotlib>=3.5.0
 seaborn>=0.11.0
-numexpr>=2.8.4
+
+# Jupyter and notebook support
 graph-notebook>=5.0.0
 ipywidgets>=7.6.0
 jupyter-client>=7.0.0
 tornado>=6.2
+
+# Performance
+numexpr>=2.8.4
