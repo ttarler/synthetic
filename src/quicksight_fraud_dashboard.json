@@ -1,0 +1,385 @@
+{
+  "dashboardName": "Fraud Detection Dashboard - Gremlin Results",
+  "description": "Fraud patterns identified through Gremlin graph queries",
+  "sheets": [
+    {
+      "sheetId": "fraud-overview",
+      "name": "Fraud Overview",
+      "visuals": [
+        {
+          "visualId": "fraud-type-distribution",
+          "title": "Fraud Distribution by Type",
+          "type": "PIE_CHART",
+          "dataSet": "quicksight_fraud_transactions.csv",
+          "fieldWells": {
+            "category": ["fraud_type"],
+            "values": ["COUNT(transaction_id)"]
+          }
+        },
+        {
+          "visualId": "fraud-amount-by-type",
+          "title": "Total Fraud Amount by Type",
+          "type": "HORIZONTAL_BAR_CHART",
+          "dataSet": "quicksight_fraud_transactions.csv",
+          "fieldWells": {
+            "category": ["fraud_type"],
+            "values": ["SUM(amount)"]
+          }
+        },
+        {
+          "visualId": "risk-score-distribution",
+          "title": "Risk Score Distribution",
+          "type": "HISTOGRAM",
+          "dataSet": "quicksight_risk_analysis.csv",
+          "fieldWells": {
+            "values": ["risk_score"]
+          }
+        }
+      ]
+    },
+    {
+      "sheetId": "money-laundering",
+      "name": "Money Laundering Rings",
+      "visuals": [
+        {
+          "visualId": "ml-ring-network",
+          "title": "Money Laundering Ring Network",
+          "type": "SANKEY_DIAGRAM",
+          "dataSet": "quicksight_fraud_transactions.csv",
+          "filters": [{"field": "fraud_type", "value": "Money Laundering Ring"}],
+          "fieldWells": {
+            "source": ["sender_account"],
+            "destination": ["receiver_account"],
+            "weight": ["amount"]
+          }
+        },
+        {
+          "visualId": "ml-amounts",
+          "title": "Money Laundering Transaction Amounts",
+          "type": "SCATTER_PLOT",
+          "dataSet": "quicksight_fraud_transactions.csv",
+          "filters": [{"field": "fraud_type", "value": "Money Laundering Ring"}],
+          "fieldWells": {
+            "xAxis": ["amount"],
+            "yAxis": ["risk_score"],
+            "size": ["amount"]
+          }
+        }
+      ]
+    },
+    {
+      "sheetId": "smurfing-networks",
+      "name": "Smurfing Networks",
+      "visuals": [
+        {
+          "visualId": "smurfing-amounts",
+          "title": "Smurfing Transaction Amounts (Near $10K Threshold)",
+          "type": "LINE_CHART",
+          "dataSet": "quicksight_fraud_transactions.csv",
+          "filters": [{"field": "fraud_type", "value": "Smurfing Network"}],
+          "fieldWells": {
+            "xAxis": ["timestamp"],
+            "values": ["amount"],
+            "color": ["sender_account"]
+          }
+        },
+        {
+          "visualId": "smurfing-frequency",
+          "title": "Smurfing Account Activity",
+          "type": "HEAT_MAP",
+          "dataSet": "quicksight_fraud_transactions.csv",
+          "filters": [{"field": "fraud_type", "value": "Smurfing Network"}],
+          "fieldWells": {
+            "rows": ["sender_account"],
+            "columns": ["DATE_TRUNC('day', timestamp)"],
+            "values": ["COUNT(transaction_id)"]
+          }
+        }
+      ]
+    },
+    {
+      "sheetId": "shell-companies",
+      "name": "Shell Company Web",
+      "visuals": [
+        {
+          "visualId": "shell-account-profile",
+          "title": "Shell Account Risk Profile",
+          "type": "SCATTER_PLOT",
+          "dataSet": "quicksight_fraud_accounts.csv",
+          "filters": [{"field": "account_type", "value": "Shell Company"}],
+          "fieldWells": {
+            "xAxis": ["balance"],
+            "yAxis": ["fraud_amount"],
+            "size": ["transaction_count"]
+          }
+        },
+        {
+          "visualId": "shell-transaction-flow",
+          "title": "Shell Company Transaction Flow",
+          "type": "TREE_MAP",
+          "dataSet": "quicksight_fraud_accounts.csv",
+          "filters": [{"field": "account_type", "value": "Shell Company"}],
+          "fieldWells": {
+            "group": ["account_id"],
+            "size": ["fraud_amount"]
+          }
+        }
+      ]
+    },
+    {
+      "sheetId": "trade-laundering",
+      "name": "Trade-Based Laundering",
+      "visuals": [
+        {
+          "visualId": "trade-amounts",
+          "title": "Trade-Based Laundering Amounts",
+          "type": "BOX_PLOT",
+          "dataSet": "quicksight_fraud_transactions.csv",
+          "filters": [{"field": "fraud_type", "value": "Trade-Based Laundering"}],
+          "fieldWells": {
+            "category": ["payment_type"],
+            "values": ["amount"]
+          }
+        },
+        {
+          "visualId": "trade-risk-timeline",
+          "title": "Trade Laundering Risk Over Time",
+          "type": "LINE_CHART",
+          "dataSet": "quicksight_fraud_transactions.csv",
+          "filters": [{"field": "fraud_type", "value": "Trade-Based Laundering"}],
+          "fieldWells": {
+            "xAxis": ["timestamp"],
+            "values": ["risk_score"],
+            "color": ["payment_type"]
+          }
+        }
+      ]
+    },
+    {
+      "sheetId": "crypto-mixing",
+      "name": "Cryptocurrency Mixing",
+      "visuals": [
+        {
+          "visualId": "crypto-mixing-flow",
+          "title": "Cryptocurrency Mixing Flow",
+          "type": "SANKEY_DIAGRAM",
+          "dataSet": "quicksight_fraud_transactions.csv",
+          "filters": [{"field": "fraud_type", "value": "Cryptocurrency Mixing"}],
+          "fieldWells": {
+            "source": ["sender_account"],
+            "destination": ["receiver_account"],
+            "weight": ["amount"]
+          }
+        },
+        {
+          "visualId": "crypto-risk-amounts",
+          "title": "Crypto Mixing Risk vs Amount",
+          "type": "SCATTER_PLOT",
+          "dataSet": "quicksight_fraud_transactions.csv",
+          "filters": [{"field": "fraud_type", "value": "Cryptocurrency Mixing"}],
+          "fieldWells": {
+            "xAxis": ["amount"],
+            "yAxis": ["risk_score"]
+          }
+        }
+      ]
+    },
+    {
+      "sheetId": "insider-fraud",
+      "name": "Insider Fraud",
+      "visuals": [
+        {
+          "visualId": "insider-timing",
+          "title": "Insider Fraud by Hour",
+          "type": "VERTICAL_BAR_CHART",
+          "dataSet": "quicksight_fraud_transactions.csv",
+          "filters": [{"field": "fraud_type", "value": "Insider Fraud"}],
+          "fieldWells": {
+            "category": ["hour"],
+            "values": ["SUM(amount)"]
+          }
+        },
+        {
+          "visualId": "insider-institutions",
+          "title": "Insider Fraud by Institution",
+          "type": "DONUT_CHART",
+          "dataSet": "quicksight_fraud_transactions.csv",
+          "filters": [{"field": "fraud_type", "value": "Insider Fraud"}],
+          "fieldWells": {
+            "category": ["institution"],
+            "values": ["COUNT(transaction_id)"]
+          }
+        }
+      ]
+    },
+    {
+      "sheetId": "synthetic-identity",
+      "name": "Synthetic Identity",
+      "visuals": [
+        {
+          "visualId": "synthetic-account-analysis",
+          "title": "Synthetic Identity Account Analysis",
+          "type": "SCATTER_PLOT",
+          "dataSet": "quicksight_fraud_accounts.csv",
+          "filters": [{"field": "account_type", "value": "Synthetic Identity"}],
+          "fieldWells": {
+            "xAxis": ["balance"],
+            "yAxis": ["total_fraud_amount"],
+            "size": ["fraud_transactions"]
+          }
+        },
+        {
+          "visualId": "synthetic-fraud-progression",
+          "title": "Synthetic Identity Fraud Progression",
+          "type": "WATERFALL_CHART",
+          "dataSet": "quicksight_fraud_accounts.csv",
+          "filters": [{"field": "account_type", "value": "Synthetic Identity"}],
+          "fieldWells": {
+            "category": ["account_id"],
+            "values": ["total_fraud_amount"]
+          }
+        }
+      ]
+    },
+    {
+      "sheetId": "unusual-amounts",
+      "name": "Unusual Amounts",
+      "visuals": [
+        {
+          "visualId": "unusual-amount-distribution",
+          "title": "Unusual Amount Distribution",
+          "type": "HISTOGRAM",
+          "dataSet": "quicksight_fraud_transactions.csv",
+          "filters": [{"field": "fraud_type", "value": "Unusual Amount"}],
+          "fieldWells": {
+            "values": ["amount"]
+          }
+        },
+        {
+          "visualId": "unusual-payment-types",
+          "title": "Unusual Amounts by Payment Type",
+          "type": "VERTICAL_BAR_CHART",
+          "dataSet": "quicksight_fraud_transactions.csv",
+          "filters": [{"field": "fraud_type", "value": "Unusual Amount"}],
+          "fieldWells": {
+            "category": ["payment_type"],
+            "values": ["AVG(amount)"]
+          }
+        }
+      ]
+    },
+    {
+      "sheetId": "off-hours",
+      "name": "Off-Hours Activity",
+      "visuals": [
+        {
+          "visualId": "off-hours-timeline",
+          "title": "Off-Hours Fraud Activity Timeline",
+          "type": "LINE_CHART",
+          "dataSet": "quicksight_temporal_analysis.csv",
+          "filters": [{"field": "fraud_type", "value": "Off-Hours Activity"}],
+          "fieldWells": {
+            "xAxis": ["timestamp"],
+            "values": ["amount"],
+            "color": ["hour"]
+          }
+        },
+        {
+          "visualId": "off-hours-heatmap",
+          "title": "Off-Hours Activity Heat Map",
+          "type": "HEAT_MAP",
+          "dataSet": "quicksight_temporal_analysis.csv",
+          "filters": [{"field": "fraud_type", "value": "Off-Hours Activity"}],
+          "fieldWells": {
+            "rows": ["hour"],
+            "columns": ["DATE_TRUNC('day', timestamp)"],
+            "values": ["SUM(amount)"]
+          }
+        }
+      ]
+    },
+    {
+      "sheetId": "risk-analysis",
+      "name": "Risk Analysis",
+      "visuals": [
+        {
+          "visualId": "risk-by-fraud-type",
+          "title": "Risk Score by Fraud Type",
+          "type": "BOX_PLOT",
+          "dataSet": "quicksight_risk_analysis.csv",
+          "fieldWells": {
+            "category": ["fraud_type"],
+            "values": ["risk_score"]
+          }
+        },
+        {
+          "visualId": "risk-amount-correlation",
+          "title": "Risk Score vs Transaction Amount",
+          "type": "SCATTER_PLOT",
+          "dataSet": "quicksight_risk_analysis.csv",
+          "fieldWells": {
+            "xAxis": ["amount"],
+            "yAxis": ["risk_score"],
+            "color": ["fraud_type"]
+          }
+        },
+        {
+          "visualId": "high-risk-transactions",
+          "title": "High Risk Transactions (Score > 80)",
+          "type": "TABLE",
+          "dataSet": "quicksight_risk_analysis.csv",
+          "filters": [{"field": "risk_score", "operator": ">", "value": 80}],
+          "fieldWells": {
+            "groupBy": ["transaction_id", "fraud_type", "amount", "risk_score"]
+          }
+        }
+      ]
+    }
+  ],
+  "parameters": [
+    {
+      "name": "RiskThreshold",
+      "type": "INTEGER",
+      "defaultValue": 70,
+      "description": "Minimum risk score threshold for filtering"
+    },
+    {
+      "name": "AmountThreshold", 
+      "type": "DECIMAL",
+      "defaultValue": 10000,
+      "description": "Minimum transaction amount for filtering"
+    },
+    {
+      "name": "FraudTypeFilter",
+      "type": "STRING",
+      "defaultValue": "ALL",
+      "description": "Filter by specific fraud type"
+    }
+  ],
+  "calculatedFields": [
+    {
+      "name": "RiskCategory",
+      "expression": "ifelse({risk_score} >= 80, 'Critical', ifelse({risk_score} >= 60, 'High', ifelse({risk_score} >= 40, 'Medium', 'Low')))"
+    },
+    {
+      "name": "AmountCategory",
+      "expression": "ifelse({amount} >= 100000, 'Very High', ifelse({amount} >= 50000, 'High', ifelse({amount} >= 10000, 'Medium', 'Low')))"
+    },
+    {
+      "name": "FraudSeverity",
+      "expression": "{risk_score} * log({amount})"
+    }
+  ],
+  "filters": [
+    {
+      "name": "DateRange",
+      "type": "DATE_RANGE",
+      "defaultValue": "LAST_90_DAYS"
+    },
+    {
+      "name": "HighRiskOnly",
+      "type": "BOOLEAN",
+      "expression": "{risk_score} >= ${RiskThreshold}"
+    }
+  ]
+}

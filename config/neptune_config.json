@@ -1,0 +1,23 @@
+{
+  "aws": {
+    "region": "us-west-2",
+    "account_id": "760829800118"
+  },
+  "neptune": {
+    "cluster_identifier": "financial-network-cluster"
+  },
+  "s3": {
+    "bucket_name": "760829800118-neptune-bulk-load",
+    "prefix": "enhanced-fraud-data"
+  },
+  "iam": {
+    "role_name": "NeptuneLoadFromS3Role",
+    "role_arn": "arn:aws:iam::760829800118:role/NeptuneLoadFromS3Role"
+  },
+  "vpc": {
+    "vpc_id": "vpc-0388b13aa293ee947"
+  },
+  "bulk_load": {
+    "fail_on_error": false
+  }
+}

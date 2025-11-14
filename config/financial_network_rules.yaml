@@ -1,0 +1,72 @@
+network_structure:
+  depository_institutions:
+    count: 3
+    concentration_levels: [0.6, 0.3, 0.1]  # Market share distribution
+    
+  accounts_per_di:
+    range: [50, 200]
+    distribution: "power_law"  # Few large accounts, many small ones
+    
+  participant_types:
+    - type: "large_bank"
+      probability: 0.05
+      transaction_volume_multiplier: 100
+    - type: "medium_bank" 
+      probability: 0.15
+      transaction_volume_multiplier: 10
+    - type: "small_bank"
+      probability: 0.30
+      transaction_volume_multiplier: 3
+    - type: "credit_union"
+      probability: 0.25
+      transaction_volume_multiplier: 2
+    - type: "fintech"
+      probability: 0.25
+      transaction_volume_multiplier: 5
+
+payment_patterns:
+  bilateral_flows:
+    concentration_ratio: 0.8  # 80% of volume in 20% of relationships
+    
+  cascade_probability: 0.15  # 15% of payments trigger cascades
+  cascade_depth_range: [2, 5]
+  cascade_decay_factor: 0.7  # Each hop reduces amount by 30%
+  
+  liquidity_patterns:
+    daily_cycles: true
+    settlement_windows: [9, 12, 15, 17]  # Peak hours
+    weekend_reduction: 0.3
+
+transaction_characteristics:
+  amount_distributions:
+    small: 
+      range: [1, 1000]
+      probability: 0.7
+      distribution: "log_normal"
+    medium:
+      range: [1000, 100000] 
+      probability: 0.25
+      distribution: "exponential"
+    large:
+      range: [100000, 10000000]
+      probability: 0.05
+      distribution: "pareto"
+      
+  timing_patterns:
+    business_hours_weight: 0.8
+    seasonal_variation: true
+    
+anomaly_injection:
+  fraud_rate: 0.001  # 0.1% of transactions
+  anomaly_types:
+    - type: "unusual_amount"
+      probability: 0.4
+    - type: "off_hours"
+      probability: 0.3  
+    - type: "cascade_disruption"
+      probability: 0.3
+
+privacy_protection:
+  identifier_obfuscation: true
+  network_topology_preservation: true
+  statistical_noise_level: 0.05

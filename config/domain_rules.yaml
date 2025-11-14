@@ -1,0 +1,54 @@
+data_schema:
+  customer:
+    fields:
+      customer_id:
+        type: "uuid"
+        unique: true
+      name:
+        type: "person_name"
+        constraints: ["not_null"]
+      email:
+        type: "email"
+        unique: true
+        domain_pattern: "@(gmail|yahoo|company).com"
+      age:
+        type: "integer"
+        range: [18, 80]
+      registration_date:
+        type: "datetime"
+        range: ["2020-01-01", "2024-12-31"]
+      
+  transaction:
+    fields:
+      transaction_id:
+        type: "uuid"
+        unique: true
+      customer_id:
+        type: "foreign_key"
+        references: "customer.customer_id"
+      amount:
+        type: "decimal"
+        range: [1.0, 10000.0]
+        distribution: "log_normal"
+      category:
+        type: "categorical"
+        values: ["groceries", "entertainment", "utilities", "transport", "healthcare"]
+      timestamp:
+        type: "datetime"
+        range: ["2020-01-01", "2024-12-31"]
+
+relationships:
+  - type: "one_to_many"
+    parent: "customer"
+    child: "transaction"
+    ratio_range: [1, 50]
+
+quality_rules:
+  completeness: 0.95
+  consistency: 0.98
+  validity: 0.99
+  uniqueness: 1.0
+
+generation_params:
+  customer_count: 1000
+  transaction_multiplier: 10

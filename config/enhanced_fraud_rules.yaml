@@ -1,0 +1,177 @@
+# Enhanced Fraud Network Configuration
+# Config-driven approach for sophisticated fraud pattern generation
+
+network_structure:
+  institutions:
+    count: 20
+    types:
+      - type: "major_bank"
+        probability: 0.15
+        channels: ["ACH", "WIRE", "RTP"]
+      - type: "regional_bank"
+        probability: 0.25
+        channels: ["ACH", "WIRE", "RTP"]
+      - type: "community_bank"
+        probability: 0.30
+        channels: ["ACH", "WIRE"]
+      - type: "credit_union"
+        probability: 0.20
+        channels: ["ACH", "RTP"]
+      - type: "fintech"
+        probability: 0.10
+        channels: ["ACH", "RTP"]
+
+  accounts:
+    total_count: 5000
+    types: ["checking", "savings", "business", "trust"]
+    balance_range: [1000, 500000]
+    
+    special_accounts:
+      shell_accounts:
+        percentage: 0.02  # 2%
+        balance_range: [100, 5000]
+      synthetic_accounts:
+        percentage: 0.01  # 1%
+        balance_range: [5000, 25000]
+
+transaction_generation:
+  total_transactions: 100000
+  time_period_days: 90
+  base_date: "2024-01-01"
+  
+  normal_transactions:
+    percentage: 0.97  # 97%
+    amount_range: [10, 5000]
+    
+    # Business hour weighting (24 hours)
+    hour_weights: [2,1,1,1,1,2,4,6,8,10,10,10,10,10,8,8,8,6,6,4,4,3,3,2]
+    
+    payment_type_distribution:
+      ACH: 0.60
+      WIRE: 0.15
+      RTP: 0.25
+
+fraud_patterns:
+  overall_fraud_rate: 0.03  # 3%
+  
+  fraud_types:
+    money_laundering_ring:
+      percentage_of_fraud: 0.25  # 25% of fraud transactions
+      characteristics:
+        ring_size_range: [3, 8]
+        amount_range: [8000, 25000]
+        transactions_per_ring: 5
+        circular_transfers: true
+        
+    smurfing_network:
+      percentage_of_fraud: 0.20  # 20% of fraud transactions
+      characteristics:
+        amount_range: [8500, 9400]  # Just under $10K threshold
+        network_size_range: [5, 15]
+        frequency: "high"
+        
+    shell_company_web:
+      percentage_of_fraud: 0.15  # 15% of fraud transactions
+      characteristics:
+        amount_range: [15000, 75000]
+        uses_shell_accounts: true
+        layering_depth: [2, 6]
+        
+    trade_based_laundering:
+      percentage_of_fraud: 0.10  # 10% of fraud transactions
+      characteristics:
+        amount_range: [50000, 500000]
+        price_manipulation: [1.5, 5.0]
+        cross_border: true
+        
+    cryptocurrency_mixing:
+      percentage_of_fraud: 0.08  # 8% of fraud transactions
+      characteristics:
+        amount_range: [5000, 100000]
+        mixing_rounds: [3, 7]
+        tumbler_accounts: [2, 5]
+        
+    insider_fraud:
+      percentage_of_fraud: 0.05  # 5% of fraud transactions
+      characteristics:
+        amount_range: [25000, 200000]
+        after_hours_activity: true
+        privileged_access: true
+        
+    synthetic_identity:
+      percentage_of_fraud: 0.02  # 2% of fraud transactions
+      characteristics:
+        amount_range: [10000, 50000]
+        uses_synthetic_accounts: true
+        buildup_period_days: [30, 180]
+        
+    unusual_amount:
+      percentage_of_fraud: 0.10  # 10% of fraud transactions
+      characteristics:
+        amount_range: [100000, 1000000]
+        multiplier_range: [5, 50]  # 5x to 50x normal
+        
+    off_hours:
+      percentage_of_fraud: 0.05  # 5% of fraud transactions
+      characteristics:
+        amount_range: [5000, 50000]
+        time_windows: [[22, 6]]  # 10 PM to 6 AM
+        weekend_activity: true
+
+risk_scoring:
+  max_score: 100
+  
+  factors:
+    amount_risk:
+      max_points: 30
+      thresholds:
+        - amount: 100000
+          points: 30
+        - amount: 50000
+          points: 20
+        - amount: 10000
+          points: 10
+        - amount: 100
+          points: 5  # Unusually small
+          
+    time_risk:
+      max_points: 20
+      off_hours: [22, 23, 0, 1, 2, 3, 4, 5]
+      off_hours_points: 20
+      extended_hours: [6, 7, 18, 19, 20, 21]
+      extended_hours_points: 5
+      
+    account_risk:
+      max_points: 25
+      shell_sender_points: 15
+      shell_receiver_points: 10
+      synthetic_sender_points: 15
+      synthetic_receiver_points: 10
+      
+    cross_institution_risk:
+      max_points: 15
+      different_institution_points: 10
+      
+    fraud_type_multipliers:
+      insider_fraud: 2.0
+      trade_based_laundering: 1.9
+      money_laundering_ring: 1.8
+      cryptocurrency_mixing: 1.8
+      shell_company_web: 1.7
+      synthetic_identity: 1.7
+      smurfing_network: 1.6
+      unusual_amount: 1.5
+      off_hours: 1.3
+
+output_settings:
+  file_formats: ["csv"]
+  output_directory: "enhanced_output"
+  
+  files:
+    institutions: "institutions.csv"
+    accounts: "accounts.csv"
+    transactions: "transactions.csv"
+    fraud_summary: "fraud_summary.json"
+    
+  include_metadata: true
+  generate_statistics: true
